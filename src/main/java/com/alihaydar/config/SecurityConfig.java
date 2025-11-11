@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.alihaydar.jwt.AuthEntryPoint;
 import com.alihaydar.jwt.JwtAuthenticationFilter;
 
 import jakarta.websocket.Session;
@@ -28,9 +29,15 @@ public class SecurityConfig {
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 	
+	@Autowired
+	private AuthEntryPoint authEntryPoint;
+	
 	public static final String AUTHORIZATION = "/authenticate";
 	
 	public static final String REGISTER = "/register";
+	
+	
+	
 
 
 	@Bean
@@ -38,6 +45,7 @@ public class SecurityConfig {
 		http.csrf().disable()
 		.authorizeHttpRequests(request -> request.requestMatchers(AUTHORIZATION , REGISTER).permitAll()
 		.anyRequest().authenticated())
+		.exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
 		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 		.authenticationProvider(authenticationProvider)
 		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
